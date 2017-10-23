@@ -39,13 +39,14 @@ void handleConnection(int listenfd, void (*callback)(int, struct sockaddr_in)) {
   socklen_t storage_len = sizeof(storage);
 
   while(1){
+    sleep(1);
     int connfd = accept(listenfd, (struct sockaddr*) &storage, &storage_len);
     if(connfd == -1) {
       perror("Connection Error");
       exit(1);
     }
     if(fork() == 0) {
-      //close(listenfd);
+      close(listenfd);
       logString(storage, "Connected");
       callback(connfd, storage);
       close(connfd);
@@ -121,7 +122,6 @@ void connectionCallback(int connfd, struct sockaddr_in connaddr) {
 
 int main (int argc, char **argv) {
   unsigned int backlog = argc < 3 ? LISTENQ : atoi(argv[2]);
-
   createServer(atoi(argv[1]), backlog, connectionCallback);
 
   return(0);

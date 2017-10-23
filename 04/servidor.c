@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include <netdb.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -10,6 +11,7 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define LISTENQ 10
 #define BUFFER_SIZE 200
@@ -39,12 +41,13 @@ void handleConnection(int listenfd, void (*callback)(int, struct sockaddr_in)) {
   socklen_t storage_len = sizeof(storage);
 
   while(1){
-    sleep(1);
+    // sleep(5);
     int connfd = accept(listenfd, (struct sockaddr*) &storage, &storage_len);
     if(connfd == -1) {
       perror("Connection Error");
       exit(1);
     }
+    signal(SIGCHLD, SIG_IGN);
     if(fork() == 0) {
       close(listenfd);
       logString(storage, "Connected");
@@ -53,7 +56,7 @@ void handleConnection(int listenfd, void (*callback)(int, struct sockaddr_in)) {
       logString(storage, "Disconnected");
       exit(0);
     }
-
+    wait(NULL);
     close(connfd);
   }
 

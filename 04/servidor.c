@@ -58,7 +58,7 @@ void handleConnection(int listenfd, void (*callback)(int, struct sockaddr_in)) {
 
 }
 
-void createServer(unsigned int port, void (*callback)(int, struct sockaddr_in)) {
+void createServer(unsigned int port, unsigned int backlog, void (*callback)(int, struct sockaddr_in)) {
   struct sockaddr_in servaddr;
   int listenfd;
   if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -74,7 +74,7 @@ void createServer(unsigned int port, void (*callback)(int, struct sockaddr_in)) 
     exit(1);
   }
 
-  if(listen(listenfd, LISTENQ) == -1){
+  if(listen(listenfd, backlog) == -1){
     perror("Listen Error");
     exit(1);
   }
@@ -120,7 +120,9 @@ void connectionCallback(int connfd, struct sockaddr_in connaddr) {
 }
 
 int main (int argc, char **argv) {
-  createServer(atoi(argv[1]), connectionCallback);
+  unsigned int backlog = argc < 3 ? LISTENQ : atoi(argv[2]);
+
+  createServer(atoi(argv[1]), backlog, connectionCallback);
 
   return(0);
 }

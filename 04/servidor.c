@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include <netdb.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -10,6 +11,7 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define LISTENQ 10
 #define BUFFER_SIZE 200
@@ -39,26 +41,28 @@ void handleConnection(int listenfd, void (*callback)(int, struct sockaddr_in)) {
   socklen_t storage_len = sizeof(storage);
 
   while(1){
+    // sleep(5);
     int connfd = accept(listenfd, (struct sockaddr*) &storage, &storage_len);
     if(connfd == -1) {
       perror("Connection Error");
       exit(1);
     }
+    signal(SIGCHLD, SIG_IGN);
     if(fork() == 0) {
-      //close(listenfd);
+      close(listenfd);
       logString(storage, "Connected");
       callback(connfd, storage);
       close(connfd);
       logString(storage, "Disconnected");
       exit(0);
     }
-
+    wait(NULL);
     close(connfd);
   }
 
 }
 
-void createServer(unsigned int port, void (*callback)(int, struct sockaddr_in)) {
+void createServer(unsigned int port, unsigned int backlog, void (*callback)(int, struct sockaddr_in)) {
   struct sockaddr_in servaddr;
   int listenfd;
   if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -74,7 +78,7 @@ void createServer(unsigned int port, void (*callback)(int, struct sockaddr_in)) 
     exit(1);
   }
 
-  if(listen(listenfd, LISTENQ) == -1){
+  if(listen(listenfd, backlog) == -1){
     perror("Listen Error");
     exit(1);
   }
@@ -120,7 +124,8 @@ void connectionCallback(int connfd, struct sockaddr_in connaddr) {
 }
 
 int main (int argc, char **argv) {
-  createServer(atoi(argv[1]), connectionCallback);
+  unsigned int backlog = argc < 3 ? LISTENQ : atoi(argv[2]);
+  createServer(atoi(argv[1]), backlog, connectionCallback);
 
   return(0);
 }

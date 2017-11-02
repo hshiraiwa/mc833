@@ -1,4 +1,5 @@
 #include <sys/socket.h>
+#include <sys/poll.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +7,11 @@
 #include <zconf.h>
 
 #define BUFFER_SIZE 10000
+#define TIMEOUT 3600
+
+#define KEEP_CONN 0
+#define END_CONN 1
+#define STOP_SENDING 2
 
 void createConnection(char *ip, unsigned int port, void (*callback)(int, struct sockaddr_in)) {
     struct sockaddr_in servaddr;
@@ -42,29 +48,65 @@ char *getPeerIP(struct sockaddr_in s) {
     return ip;
 }
 
-void closeConnection(int sockfd) {
-    close(sockfd);
-    exit(0);
-}
+char* readPoll(int sockfd){
+    struct pollfd pfd[1];
+    char* buf = malloc(sizeof(char) * BUFFER_SIZE);
+    bzero(buf, BUFFER_SIZE);
+    pfd->fd = sockfd;
+    pfd->events = POLLIN;
+    int rv = poll(pfd, 1, TIMEOUT);
 
-void handleLogic(int sockfd) {
-    char recvline[BUFFER_SIZE];
-    char sendline[BUFFER_SIZE];
-
-    bzero(sendline, BUFFER_SIZE);
-    bzero(recvline, BUFFER_SIZE);
-
-    if(fgets(sendline, BUFFER_SIZE, stdin) == 0) {
-            closeConnection(sockfd);
+     if( rv <= 0 || (pfd[0].revents & (POLLERR | POLLHUP)) ) {
+        return NULL;
     }
 
-    write(sockfd, sendline, strlen(sendline));
-    read(sockfd, recvline, BUFFER_SIZE);
+    if(pfd[0].revents & POLLIN) {
+        if(read(sockfd, buf, BUFFER_SIZE) == 0){
+            free(buf);
+            return NULL;
+        }
+        return buf;
+    }
+}
+
+void writePoll(int sockfd, char* input){
+    struct pollfd pfd[1];
+    pfd->fd = sockfd;
+    pfd->events = POLLOUT;
+    int rv = poll(pfd, 1, TIMEOUT);
+
+    if(pfd[0].revents & POLLOUT) {
+        write(sockfd, input, strlen(input));
+        return;
+    }
+}
+
+int handleLogic(int sockfd, int status_flag) {
+    char* recvline = NULL;
+    char* sendline = NULL;
+    size_t length = 0;
+
+    if(status_flag != STOP_SENDING) {
+        if(getline(&sendline, &length, stdin) == -1) {
+            return STOP_SENDING;
+        }
+        writePoll(sockfd, sendline);
+    }
+
+    recvline = readPoll(sockfd);
+    if(recvline == NULL) {
+        return END_CONN;
+    }
     printf("%s", recvline);
+    return KEEP_CONN;
 }
 
 void connectionCallback(int sockfd, struct sockaddr_in servaddr) {
-    while (1) handleLogic(sockfd);
+    int flag = KEEP_CONN;
+    do {
+        flag = handleLogic(sockfd, flag);
+    } while(flag != END_CONN);
+    close(sockfd);
 }
 
 int main(int argc, char **argv) {

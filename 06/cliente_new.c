@@ -67,6 +67,7 @@ char* readPoll(int sockfd){
         }
         return buf;
     }
+    return NULL;
 }
 
 void writePoll(int sockfd, char* input){

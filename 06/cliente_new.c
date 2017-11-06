@@ -98,6 +98,7 @@ int handleLogic(int sockfd, int status_flag) {
         return END_CONN;
     }
     printf("%s", recvline);
+    free(recvline);
     return KEEP_CONN;
 }
 

@@ -7,6 +7,10 @@
 
 #define BUFFER_SIZE 10000
 
+#define CONN_ALIVE 0
+#define CONN_END 1
+#define CONN_STOP_SEND 2
+
 void createConnection(char *ip, unsigned int port, void (*callback)(int, struct sockaddr_in)) {
     struct sockaddr_in servaddr;
     int sockfd;
@@ -47,24 +51,33 @@ void closeConnection(int sockfd) {
     exit(0);
 }
 
-void handleLogic(int sockfd) {
+int handleLogic(int sockfd, int status_flag) {
     char recvline[BUFFER_SIZE];
-    char sendline[BUFFER_SIZE];
+    char* sendline = NULL;
+    size_t length = 0;
 
-    bzero(sendline, BUFFER_SIZE);
-    bzero(recvline, BUFFER_SIZE);
-
-    if(fgets(sendline, BUFFER_SIZE, stdin) == 0) {
-            closeConnection(sockfd);
+    if(status_flag != CONN_STOP_SEND) {
+        if(getline(&sendline, &length, stdin) == -1) {
+            return CONN_STOP_SEND;
+        }
+        write(sockfd, sendline, strlen(sendline));
     }
 
-    write(sockfd, sendline, strlen(sendline));
-    read(sockfd, recvline, BUFFER_SIZE);
+    free(sendline);
+    bzero(recvline, BUFFER_SIZE);
+    if(read(sockfd, recvline, BUFFER_SIZE) == 0) {
+        return CONN_END;
+    }
     printf("%s", recvline);
+    return CONN_ALIVE;
 }
 
 void connectionCallback(int sockfd, struct sockaddr_in servaddr) {
-    while (1) handleLogic(sockfd);
+    int flag = CONN_ALIVE;
+    do {
+        flag = handleLogic(sockfd, flag);
+    } while(flag != CONN_END);
+    close(sockfd);
 }
 
 int main(int argc, char **argv) {

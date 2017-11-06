@@ -2,3 +2,5 @@
 **/servidor
 *.log
 **/out
+.idea
+cmake-build-debug

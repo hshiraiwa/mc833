@@ -7,7 +7,7 @@ Message recvMessage(int sockfd);
 
 void sendMessage(int sockfd, Message message);
 
-Message message(char *ip, uint16_t port);
+Message message(char *ip, uint16_t port, MessageBody body);
 
 int createSocket();
 

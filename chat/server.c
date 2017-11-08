@@ -9,11 +9,11 @@ int main() {
     bindSocket(sockfd, 3000);
     printf("socket bound to port 3000\n");
 
-    while (1) {
+    for(;;) {
         Message m = recvMessage(sockfd);
-        printf("%s\n", m.body.message);
-        if(strcmp(m.body.message, "exit\n") == 0)
-            break;
+
+        printf("%s %d - %s\n", m.ip, m.port, m.body.message);
+
         sendMessage(sockfd, m);
     }
 

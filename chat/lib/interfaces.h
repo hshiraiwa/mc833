@@ -5,12 +5,12 @@
 
 typedef struct {
     //TEMPORARY FIELD, MOSTLY FOR DEBUG REASONS
-    char message[20];
+    uint8_t message[20];
 } MessageBody;
 
 typedef struct {
-    uint16_t port;
-    uint8_t ip[INET_ADDRSTRLEN];
+    unsigned short port;
+    char ip[INET_ADDRSTRLEN];
 
     MessageBody body;
 } Message;

@@ -9,5 +9,5 @@ set(LIB_FILES
         lib/interfaces.c
         lib/interfaces.h)
 
-add_executable(client client.c ${LIB_FILES})
+add_executable(client client_new.c ${LIB_FILES})
 add_executable(server server.c ${LIB_FILES})

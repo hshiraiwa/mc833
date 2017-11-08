@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "lib/commons.h"
-#include "lib/interfaces.h"
 
 int main() {
     printf("starting client\n");
@@ -12,6 +11,12 @@ int main() {
     strcpy((char *) body.message, "hello world");
 
     Message m = message("127.0.0.1", 3000, body);
+    sendMessage(sockfd, m);
+    printf("message send: %s\n", m.body.message);
+
+    sendMessage(sockfd, m);
+    printf("message send: %s\n", m.body.message);
+
     sendMessage(sockfd, m);
     printf("message send: %s\n", m.body.message);
 

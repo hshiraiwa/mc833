@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <string.h>
 #include "lib/commons.h"
-#include "lib/interfaces.h"
 
 int main() {
     printf("starting server:\n");

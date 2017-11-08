@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.5)
 project(chat)
 
 set(CMAKE_CXX_STANDARD 11)
 
 set(LIB_FILES
+        lib/commons.c
+        lib/commons.h
         lib/interfaces.c
         lib/interfaces.h)
 

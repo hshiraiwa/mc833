@@ -149,6 +149,12 @@
          <Option target="server"/>
          <Option target="client"/>
       </Unit>
+      <Unit filename="/home/hshiraiwa/Documents/mc833/chat/lib/message_queue.c">
+         <Option target="server"/>
+      </Unit>
+      <Unit filename="/home/hshiraiwa/Documents/mc833/chat/lib/message_queue.h">
+         <Option target="server"/>
+      </Unit>
       <Unit filename="/home/hshiraiwa/Documents/mc833/chat/server.c">
          <Option target="server"/>
       </Unit>

@@ -8,6 +8,7 @@ int main() {
     printf("socket created\n");
 
     MessageBody body;
+    bzero(&body, sizeof body);
     strcpy((char *) body.message, "hello world");
 
     for (int i = 0; i < 4; i++) {

@@ -10,18 +10,14 @@ int main() {
     MessageBody body;
     strcpy((char *) body.message, "hello world");
 
-    Message m = message("127.0.0.1", 3000, body);
-    sendMessage(sockfd, m);
-    printf("message send: %s\n", m.body.message);
+    for (int i = 0; i < 4; i++) {
+        Message m = message("127.0.0.1", 3000, body);
+        sendMessage(sockfd, m);
+        printf("message send: %s\n", m.body.message);
 
-    sendMessage(sockfd, m);
-    printf("message send: %s\n", m.body.message);
-
-    sendMessage(sockfd, m);
-    printf("message send: %s\n", m.body.message);
-
-    Message response = recvMessage(sockfd);
-    printf("%s\n", response.body.message);
+        Message response = recvMessage(sockfd);
+        printf("%s\n", response.body.message);
+    }
 
     return 0;
 }

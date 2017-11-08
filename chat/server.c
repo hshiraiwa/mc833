@@ -31,10 +31,11 @@ void *sendExecutor(void *parameters) {
     for (;;) {
         Message *messages;
         int size = pullMessageQueue(queue, &messages);
-        if (queue != 0) {
+        if (size != 0) {
             for (int i = 0; i < size; i++) {
                 sendMessage(sockfd, messages[i]);
             }
+            free(messages);
         } else {
             sleep(1);
         }
@@ -67,7 +68,7 @@ int main() {
         }
     }
 
-    if (pthread_join(recvExec[3], NULL)) {
+    if (pthread_join(recvExec[0], NULL)) {
         perror("ERROR: could not join thread");
         exit(1);
     }

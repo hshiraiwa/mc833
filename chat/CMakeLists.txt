@@ -17,6 +17,8 @@ add_executable(server server.c ${LIB_FILES}
         lib/message_queue.c
         lib/message_queue.h
         lib/executors.c
-        lib/executors.h)
+        lib/executors.h
+        lib/client_list.c
+        lib/client_list.h)
 
 target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})

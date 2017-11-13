@@ -1,15 +1,25 @@
 #include <strings.h>
 #include "executors.h"
 
-struct ExecutorParameters {
+struct RecvExecutorParameters {
     MessageQueue *queue;
     int sockfd;
     int id;
     int shutdownFlag;
 };
 
+struct ConsumerExecutorParameters {
+    MessageQueue *queue;
+
+    int (*handler)(Message, Message **);
+
+    int sockfd;
+    int id;
+    int shutdownFlag;
+};
+
 void *recvExecutor(void *param) {
-    struct ExecutorParameters *parameters = (struct ExecutorParameters *) param;
+    struct RecvExecutorParameters *parameters = (struct RecvExecutorParameters *) param;
     while (!parameters->shutdownFlag) {
         Message m = recvMessage(parameters->sockfd);
         printf("%d - %s %d - %s\n", parameters->id, m.ip, m.port, m.body.message);
@@ -18,15 +28,21 @@ void *recvExecutor(void *param) {
     }
 }
 
-void *sendExecutor(void *param) {
-    struct ExecutorParameters *parameters = (struct ExecutorParameters *) param;
+void *consumerExecutor(void *param) {
+    struct ConsumerExecutorParameters *parameters = (struct ConsumerExecutorParameters *) param;
 
     while (!parameters->shutdownFlag) {
         Message *messages;
         int size = pullMessageQueue(parameters->queue, &messages);
         if (size != 0) {
             for (int i = 0; i < size; i++) {
-                sendMessage(parameters->sockfd, messages[i]);
+                Message *responses;
+                int responseCount = parameters->handler(messages[i], &responses);
+                for (int j = 0; j < responseCount; j++) {
+                    sendMessage(parameters->sockfd, responses[j]);
+                }
+                if (responseCount > 0)
+                    free(responses);
             }
             free(messages);
         } else {
@@ -38,7 +54,7 @@ void *sendExecutor(void *param) {
 pthread_t *initMessageReceiver(int sockfd, MessageQueue *queue, int id) {
     pthread_t *pthread = malloc(sizeof(pthread_t));
     bzero(pthread, sizeof(pthread_t));
-    struct ExecutorParameters *parameters = malloc(sizeof(struct ExecutorParameters));
+    struct RecvExecutorParameters *parameters = malloc(sizeof(struct RecvExecutorParameters));
     parameters->sockfd = sockfd;
     parameters->queue = queue;
     parameters->id = id;
@@ -52,16 +68,17 @@ pthread_t *initMessageReceiver(int sockfd, MessageQueue *queue, int id) {
     return pthread;
 }
 
-pthread_t *initMessageSender(int sockfd, MessageQueue *queue, int id) {
+pthread_t *initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **)) {
     pthread_t *pthread = malloc(sizeof(pthread_t));
     bzero(pthread, sizeof(pthread_t));
-    struct ExecutorParameters *parameters = malloc(sizeof(struct ExecutorParameters));
+    struct ConsumerExecutorParameters *parameters = malloc(sizeof(struct ConsumerExecutorParameters));
     parameters->sockfd = sockfd;
     parameters->queue = queue;
     parameters->id = id;
+    parameters->handler = handler;
     parameters->shutdownFlag = 0;
 
-    if (pthread_create(pthread, NULL, sendExecutor, (void *) parameters)) {
+    if (pthread_create(pthread, NULL, consumerExecutor, (void *) parameters)) {
         perror("ERROR: failed to create thread");
         exit(1);
     }

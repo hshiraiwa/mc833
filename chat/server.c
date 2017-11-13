@@ -6,7 +6,7 @@
 #include "lib/message_queue.h"
 #include "lib/executors.h"
 
-struct ExecutorParameters {
+struct RecvExecutorParameters {
     MessageQueue *queue;
     int sockfd;
     int id;
@@ -24,7 +24,7 @@ int main() {
     pthread_t *sendExec[2];
     for (int i = 0; i < 2; i++) {
         recvExec[i] = initMessageReceiver(sockfd, queue, i);
-        sendExec[i] = initMessageSender(sockfd, queue, i);
+        sendExec[i] = initMessageConsumer(sockfd, queue, i);
 
     }
 

@@ -6,9 +6,10 @@
 #include "lib/executors.h"
 
 int handler(Message m, Message **messages) {
-    *messages = malloc(sizeof(Message));
-    *messages[0] = message(m.ip, m.port, m.body);
-    return 1;
+    *messages = malloc(sizeof(Message)*2);
+    (*messages)[0] = message(m.ip, m.port, m.body);
+    (*messages)[1] = message(m.ip, m.port, m.body);
+    return 2;
 }
 
 int main() {

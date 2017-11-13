@@ -1,16 +1,15 @@
 #include <pthread.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "lib/commons.h"
 #include "lib/message_queue.h"
 #include "lib/executors.h"
 
-struct RecvExecutorParameters {
-    MessageQueue *queue;
-    int sockfd;
-    int id;
-};
+int handler(Message m, Message **messages) {
+    *messages = malloc(sizeof(Message));
+    *messages[0] = message(m.ip, m.port, m.body);
+    return 1;
+}
 
 int main() {
     printf("starting server:\n");
@@ -24,14 +23,20 @@ int main() {
     pthread_t *sendExec[2];
     for (int i = 0; i < 2; i++) {
         recvExec[i] = initMessageReceiver(sockfd, queue, i);
-        sendExec[i] = initMessageConsumer(sockfd, queue, i);
+        sendExec[i] = initMessageConsumer(sockfd, queue, i, handler);
 
     }
-
-    if (pthread_join(*(recvExec[0]), NULL)) {
-        perror("ERROR: could not join thread");
-        exit(1);
+    for (int i = 0; i < 2; ++i) {
+        if (pthread_join(*(recvExec[i]), NULL)) {
+            perror("ERROR: could not join thread");
+            exit(1);
+        }
+        if (pthread_join(*(sendExec[i]), NULL)) {
+            perror("ERROR: could not join thread");
+            exit(1);
+        }
     }
+
 
     return 0;
 }

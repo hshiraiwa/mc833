@@ -12,6 +12,7 @@ typedef struct MessageNode {
 
 typedef struct {
     MessageNode *head;
+    MessageNode *tail;
     sem_t mutex;
     unsigned int size;
 } MessageQueue;

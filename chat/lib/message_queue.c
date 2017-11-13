@@ -3,29 +3,33 @@
 MessageQueue *initMessageQueue() {
     MessageQueue *queue = malloc(sizeof(MessageQueue));
     queue->head = 0;
+    queue->tail = 0;
     queue->size = 0;
     sem_init(&queue->mutex, 0, 1);
 
     return queue;
 }
 
-void _pushQueue(MessageNode **node, Message m) {
+MessageNode *_pushQueue(MessageNode **node, Message m) {
     if (*node == 0) {
         MessageNode *newNode = malloc(sizeof(MessageNode));
         newNode->m = m;
         newNode->next = 0;
         *node = newNode;
 
-        return;
+        return newNode;
     }
 
-    _pushQueue(&(*node)->next, m);
+    return _pushQueue(&(*node)->next, m);
 }
 
 void pushMessageQueue(MessageQueue *queue, Message m) {
     sem_wait(&queue->mutex);
     queue->size = queue->size + 1;
-    _pushQueue(&queue->head, m);
+    if (queue->tail == 0)
+        queue->tail = _pushQueue(&queue->head, m);
+    else
+        queue->tail = _pushQueue(&queue->tail, m);
     sem_post(&queue->mutex);
 }
 
@@ -36,7 +40,7 @@ void queueToArray(MessageNode *node, Message *array, int i) {
 
     MessageNode *next = node->next;
     free(node);
-    queueToArray(next, array, i+1);
+    queueToArray(next, array, i + 1);
 }
 
 int pullMessageQueue(MessageQueue *queue, Message **array) {
@@ -45,6 +49,7 @@ int pullMessageQueue(MessageQueue *queue, Message **array) {
     int size = queue->size;
     queue->size = 0;
     queue->head = 0;
+    queue->tail = 0;
     sem_post(&queue->mutex);
 
     if (size != 0) {

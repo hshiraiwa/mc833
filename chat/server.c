@@ -5,6 +5,8 @@
 #include "lib/message_queue.h"
 #include "lib/executors.h"
 
+#define THREAD_COUNT 5
+
 int handler(Message m, Message **messages) {
     *messages = malloc(sizeof(Message)*2);
     (*messages)[0] = message(m.ip, m.port, m.body);
@@ -20,14 +22,14 @@ int main() {
     MessageQueue *queue = initMessageQueue();
 
 
-    pthread_t *recvExec[2];
-    pthread_t *sendExec[2];
-    for (int i = 0; i < 2; i++) {
+    pthread_t *recvExec[THREAD_COUNT];
+    pthread_t *sendExec[THREAD_COUNT];
+    for (int i = 0; i < THREAD_COUNT; i++) {
         recvExec[i] = initMessageReceiver(sockfd, queue, i);
         sendExec[i] = initMessageConsumer(sockfd, queue, i, handler);
 
     }
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < THREAD_COUNT; ++i) {
         if (pthread_join(*(recvExec[i]), NULL)) {
             perror("ERROR: could not join thread");
             exit(1);

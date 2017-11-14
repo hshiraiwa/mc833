@@ -70,5 +70,6 @@ void bindSocket(int sockfd, uint16_t port) {
 
     if (bind(sockfd, (struct sockaddr *) &servaddr, sizeof servaddr) < 0) {
         perror("ERROR: Socket could not bind to port: " + port);
+        exit(1);
     }
 }

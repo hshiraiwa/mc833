@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
     Message greetingMessage = message(ip, port, createGreetingBody(argv[3]));
     sendMessage(sockfd, greetingMessage);
     recvMessage(sockfd);
-    sleep(3);
     MessageBody body = createMessageBody("Hello World");
     for (int i = 0; i < 4; i++) {
         Message m = message(ip, port, body);

@@ -1,35 +1,37 @@
 #include "client_list.h"
 
 ClientList *initClientList() {
-    ClientList* clientList = malloc(sizeof(ClientList));
+    ClientList *clientList = malloc(sizeof(ClientList));
     clientList->head = 0;
     clientList->size = 0;
     sem_init(&clientList->mutex, 0, 1);
     return clientList;
 }
 
-int _searchNickname(char* ip, unsigned short port, ClientNode* clientNode, char** nickname) {
-    if(clientNode == 0)
+
+int _searchNickname(char *ip, unsigned short port, ClientNode *clientNode, char **nickname) {
+    if (clientNode == 0)
         return 0;
-    if(strcmp(clientNode->c.ip,ip) == 0 && clientNode->c.port == port) {
+    if (strcmp(clientNode->c.ip, ip) == 0 && clientNode->c.port == port) {
         size_t len = strlen(clientNode->c.nickname);
-        *nickname = malloc(sizeof(char)*(len+1));
+        *nickname = malloc(sizeof(char) * (len + 1));
         strcpy(*nickname, clientNode->c.nickname);
         return len;
     }
 }
 
-int searchNickname(char* ip, unsigned short port, ClientList* clientList, char** nickname) {
+int searchNickname(char *ip, unsigned short port, ClientList *clientList, char **nickname) {
     sem_wait(&clientList->mutex);
-    _searchNickname(ip, port, clientList->head, nickname);
+    int result = _searchNickname(ip, port, clientList->head, nickname);
     sem_post(&clientList->mutex);
+    return result;
 }
 
-void pushToList(Client c, ClientList* clientList) {
+void pushToList(Client c, ClientList *clientList) {
     sem_wait(&clientList->mutex);
     clientList->size = clientList->size + 1;
-    ClientNode* next = clientList->head;
-    ClientNode* clientNode = malloc(sizeof(ClientNode));
+    ClientNode *next = clientList->head;
+    ClientNode *clientNode = malloc(sizeof(ClientNode));
     clientNode->c = c;
     clientNode->next = next;
     clientList->head = clientNode;
@@ -37,9 +39,9 @@ void pushToList(Client c, ClientList* clientList) {
 }
 
 void _removeClient(Client c, ClientNode **node) {
-    if(node == 0)
+    if (node == 0)
         return;
-    if(strcmp((*node)->c.ip,c.ip) == 0 && (*node)->c.port == c.port) {
+    if (strcmp((*node)->c.ip, c.ip) == 0 && (*node)->c.port == c.port) {
         (*node) = (*node)->next;
         free(*node);
     }

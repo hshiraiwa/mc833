@@ -1,8 +1,4 @@
-#include <strings.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "interfaces.h"
+#include "commons.h"
 
 Message recvMessage(int sockfd) {
     MessageBody body;
@@ -72,4 +68,40 @@ void bindSocket(int sockfd, uint16_t port) {
         perror("ERROR: Socket could not bind to port: " + port);
         exit(1);
     }
+}
+
+Client extractClient(Message m) {
+    Client c;
+    c.port = m.port;
+    strcpy(c.ip, m.ip);
+    strcpy(c.nickname, (char *) m.body.data.greeting);
+
+    return c;
+}
+
+MessageBody createMessageBody(char *message) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = MESSAGE;
+    strcpy((char *) body.data.message, message);
+
+    return body;
+}
+
+MessageBody createGreetingBody(char *nickname) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = GREETING;
+    strcpy((char *) body.data.greeting, nickname);
+
+    return body;
+}
+
+MessageBody createAckMessage(DataType type) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = ACK;
+    body.data.ack = type;
+
+    return body;
 }

@@ -1,6 +1,11 @@
 #ifndef CHAT_COMMONS_H
 #define CHAT_COMMONS_H
 
+#include <strings.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "interfaces.h"
 
 /**
@@ -40,5 +45,13 @@ int createSocket();
  * @param port - Port to be bound
  */
 void bindSocket(int sockfd, uint16_t port);
+
+Client extractClient(Message m);
+
+MessageBody createMessageBody(char *message);
+
+MessageBody createGreetingBody(char *nickname);
+
+MessageBody createAckMessage(DataType type);
 
 #endif //CHAT_COMMONS_H

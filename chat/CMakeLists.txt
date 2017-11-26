@@ -13,12 +13,13 @@ set(LIB_FILES
         lib/interfaces.h)
 
 add_executable(client client_new.c ${LIB_FILES})
-add_executable(server server.c ${LIB_FILES}
+add_executable(server server.c
         lib/message_queue.c
         lib/message_queue.h
+        lib/client_list.c
+        lib/client_list.h
         lib/executors.c
         lib/executors.h
-        lib/client_list.c
-        lib/client_list.h)
+        ${LIB_FILES})
 
 target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})

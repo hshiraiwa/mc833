@@ -6,6 +6,8 @@
 #include <zconf.h>
 #include "commons.h"
 #include "message_queue.h"
+#include <strings.h>
+#include "client_list.h"
 
 /**
  * Init a thread that will receive messages from a open socket
@@ -26,6 +28,8 @@ pthread_t *initMessageReceiver(int sockfd, MessageQueue *queue, int id);
  * @param handler - Function that handles the responses, must return the response array size
  * @return
  */
-pthread_t *initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **));
+pthread_t *
+initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **, ClientList *),
+                    ClientList *clientList);
 
 #endif //CHAT_EXECUTORS_H

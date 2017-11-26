@@ -1,4 +1,3 @@
-#include <strings.h>
 #include "executors.h"
 
 struct RecvExecutorParameters {
@@ -11,19 +10,18 @@ struct RecvExecutorParameters {
 struct ConsumerExecutorParameters {
     MessageQueue *queue;
 
-    int (*handler)(Message, Message **);
+    int (*handler)(Message, Message **, ClientList *);
 
     int sockfd;
     int id;
     int shutdownFlag;
+    ClientList *clientList;
 };
 
 void *recvExecutor(void *param) {
     struct RecvExecutorParameters *parameters = (struct RecvExecutorParameters *) param;
     while (!parameters->shutdownFlag) {
         Message m = recvMessage(parameters->sockfd);
-        printf("%d - %s %d - %s\n", parameters->id, m.ip, m.port, m.body.message);
-
         pushMessageQueue(parameters->queue, m);
     }
 }
@@ -37,7 +35,7 @@ void *consumerExecutor(void *param) {
         if (size != 0) {
             for (int i = 0; i < size; i++) {
                 Message *responses;
-                int responseCount = parameters->handler(messages[i], &responses);
+                int responseCount = parameters->handler(messages[i], &responses, parameters->clientList);
                 for (int j = 0; j < responseCount; j++) {
                     sendMessage(parameters->sockfd, responses[j]);
                 }
@@ -68,7 +66,9 @@ pthread_t *initMessageReceiver(int sockfd, MessageQueue *queue, int id) {
     return pthread;
 }
 
-pthread_t *initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **)) {
+pthread_t *
+initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **, ClientList *),
+                    ClientList *clientList) {
     pthread_t *pthread = malloc(sizeof(pthread_t));
     bzero(pthread, sizeof(pthread_t));
     struct ConsumerExecutorParameters *parameters = malloc(sizeof(struct ConsumerExecutorParameters));
@@ -77,6 +77,7 @@ pthread_t *initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*ha
     parameters->id = id;
     parameters->handler = handler;
     parameters->shutdownFlag = 0;
+    parameters->clientList = clientList;
 
     if (pthread_create(pthread, NULL, consumerExecutor, (void *) parameters)) {
         perror("ERROR: failed to create thread");

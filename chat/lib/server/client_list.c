@@ -77,17 +77,19 @@ int getClients(Client **clients, ClientList *clientList) {
     return size;
 }
 
-void _removeClient(Client c, ClientNode **node) {
+int _removeClient(Client c, ClientNode **node) {
     if (node == 0)
-        return;
+        return 0;
     if (strcmp((*node)->c.ip, c.ip) == 0 && (*node)->c.port == c.port) {
         (*node) = (*node)->next;
+        return 1;
     }
+    return _removeClient(c, &((*node)->next));
 }
 
 void removeClient(Client c, ClientList *clientList) {
     sem_wait(&clientList->mutex);
-    _removeClient(c, &clientList->head);
-    clientList->size--;
+    if (_removeClient(c, &clientList->head))
+        clientList->size = clientList->size - 1;
     sem_post(&clientList->mutex);
 }

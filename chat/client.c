@@ -4,13 +4,12 @@
 #include "lib/commons.h"
 #include "lib/client/utils.h"
 #include "lib/client/executors.h"
-#include "lib/interfaces.h"
 
 void messageHandler(Message m) {
     switch (m.body.type) {
         case TEXT:
             //TODO: NonBlocking IO
-            printf("%s: %s\n", m.body.data.text.nickname, m.body.data.text.body);
+            printf("[GLOBAL] %s: %s\n", m.body.data.text.nickname, m.body.data.text.body);
             return;
         case PRIVATE_TEXT:
             printf("[PM] %s: %s\n", m.body.data.privateText.nickname, m.body.data.text.body);
@@ -38,6 +37,7 @@ void messageHandler(Message m) {
     }
 }
 
+
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         printf("usage: main <hostname> <port> <nickname>\n");
@@ -51,17 +51,32 @@ int main(int argc, char *argv[]) {
     initMessageReceiver(sockfd, messageHandler);
     sendGreetings(sockfd, ip, port, argv[3]);
 
+    char pmNickname[NICKNAME_LEN];
+    short isPm = 0;
+
     char input[MESSAGE_LEN];
     for (;;) {
         //TODO: NonBlocking IO
         scanf("%s", input);
-        if (strcmp(input, "exit") == 0) {
+        if (strcmp(input, "/exit") == 0) {
             Message m = message(ip, port, createDisconnectBody(argv[3]));
             sendMessage(sockfd, m);
             return 0;
+
+        } else if (strcmp(input, "/pm") == 0) {
+            printf("input the nickname you want to send private messages: ");
+            scanf("%s", pmNickname);
+            isPm = 1;
+        } else if (strcmp(input, "/global") == 0) {
+            isPm = 0;
         } else {
-            Message m = message(ip, port, createPrivateTextBody(input, "castor", 0));
-            sendMessage(sockfd, m);
+            if (isPm) {
+                Message m = message(ip, port, createPrivateTextBody(input, pmNickname, 0));
+                sendMessage(sockfd, m);
+            } else {
+                Message m = message(ip, port, createTextBody(input, 0));
+                sendMessage(sockfd, m);
+            }
         }
     }
 }

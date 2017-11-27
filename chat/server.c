@@ -4,7 +4,6 @@
 #include "lib/commons.h"
 #include "lib/server/message_queue.h"
 #include "lib/server/executors.h"
-#include "lib/interfaces.h"
 
 #define THREAD_COUNT 1
 
@@ -59,16 +58,10 @@ int handleMessage(Message m, Message **messages, ClientList *clientList) {
         int size = getClients(&clients, clientList);
         *messages = malloc(sizeof(Message) * size);
         for (int i = 0; i < size; i++) {
-            if (strcmp(nickname, clients[i].nickname) != 0) {
-                (*messages)[i] = message(clients[i].ip,
-                                         clients[i].port,
-                                         createTextBody((char *) m.body.data.text.body,
-                                                        nickname));
-            } else {
-                (*messages)[i] = message(clients[i].ip,
-                                         clients[i].port,
-                                         createAckMessage(TEXT));
-            }
+            (*messages)[i] = message(clients[i].ip,
+                                     clients[i].port,
+                                     createTextBody((char *) m.body.data.text.body,
+                                                    nickname));
         }
         free(nickname);
         free(clients);

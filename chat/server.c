@@ -47,11 +47,15 @@ int handler(Message m, Message **messages, ClientList *clientList) {
     return 0;
 }
 
-int main() {
-    printf("starting server:\n");
+int main(int argc, char* argv[]) {
+    if(argc < 2) {
+        printf("usage: server <port>\n");
+        exit(1);
+    }
+
     int sockfd = createSocket();
-    bindSocket(sockfd, 3000);
-    printf("socket bound to port 3000\n");
+    bindSocket(sockfd, atoi(argv[1]));
+    printf("socket bound to port %s\n", argv[1]);
 
     ClientList *clientList = initClientList();
     MessageQueue *queue = initMessageQueue();

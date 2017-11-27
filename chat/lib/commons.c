@@ -27,8 +27,8 @@ void sendMessage(int sockfd, Message message) {
 
     sin->sin_family = AF_INET;
     if (inet_pton(AF_INET, message.ip, &sin->sin_addr) <= 0) {
-        perror("ERROR: inet_pton could to be concluded");
-        exit(1);
+        perror("ERROR: message could not be sent");
+        return;
     }
     sin->sin_port = htons(message.port);
 

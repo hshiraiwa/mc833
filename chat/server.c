@@ -21,15 +21,19 @@ int handleMessage(Message m, Message **messages, ClientList *clientList) {
     if (nicknameLen > 0) {
         Client *clients;
         int size = getClients(&clients, clientList);
+        int messagesCount = 0;
         *messages = malloc(sizeof(Message) * size);
         for (int i = 0; i < size; i++) {
-            (*messages)[i] = message(clients[i].ip,
-                                     clients[i].port,
-                                     createTextBody((char *) m.body.data.text.body,
-                                                    nickname));
+            if (strcmp(nickname, clients[i].nickname) != 0) {
+                (*messages)[messagesCount] = message(clients[i].ip,
+                                         clients[i].port,
+                                         createTextBody((char *) m.body.data.text.body,
+                                                        nickname));
+                messagesCount++;
+            }
         }
         free(clients);
-        return size;
+        return messagesCount;
     }
     return 0;
 }
@@ -47,8 +51,8 @@ int handler(Message m, Message **messages, ClientList *clientList) {
     return 0;
 }
 
-int main(int argc, char* argv[]) {
-    if(argc < 2) {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
         printf("usage: server <port>\n");
         exit(1);
     }

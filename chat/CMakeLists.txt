@@ -11,7 +11,7 @@ file(GLOB SERVER_LIB "lib/server/*.c" "lib/server/*.h")
 file(GLOB CLIENT_LIB "lib/client/*.c" "lib/client/*.h")
 
 add_executable(client
-        client_new.c
+        client.c
         ${CLIENT_LIB}
         ${LIB_FILES})
 
@@ -21,3 +21,4 @@ add_executable(server
         ${LIB_FILES})
 
 target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(client ${CMAKE_THREAD_LIBS_INIT})

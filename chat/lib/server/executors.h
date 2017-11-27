@@ -1,5 +1,5 @@
-#ifndef CHAT_EXECUTORS_H
-#define CHAT_EXECUTORS_H
+#ifndef EXECUTORS_H
+#define EXECUTORS_H
 
 #include <pthread.h>
 #include <stdio.h>
@@ -32,4 +32,4 @@ pthread_t *
 initMessageConsumer(int sockfd, MessageQueue *queue, int id, int (*handler)(Message, Message **, ClientList *),
                     ClientList *clientList);
 
-#endif //CHAT_EXECUTORS_H
+#endif //EXECUTORS_H

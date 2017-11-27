@@ -7,17 +7,20 @@
 #define MESSAGE_LEN 300
 
 typedef enum {
+    GREETING_ACK = 1,
+    NICKNAME_IN_USE_ACK = 2
+} AckType;
+
+typedef enum {
     TEXT = 0,
     PRIVATE_TEXT = 1,
     GREETING = 2,
     NICKNAME_LIST = 3,
     ACK = 4,
-    DISCONNECT = 5
+    DATA_TRANSFER = 5,
+    DISCONNECT = 6
 } DataType;
 
-typedef struct Disconnect {
-    uint8_t nickname[NICKNAME_LEN];
-} Disconnect;
 
 typedef struct Text {
     uint8_t body[MESSAGE_LEN];
@@ -42,6 +45,16 @@ typedef struct Ack {
     uint8_t code;
 } Ack;
 
+typedef struct DataTransfer {
+    unsigned short port;
+    char ip[INET_ADDRSTRLEN];
+    char nickname[NICKNAME_LEN];
+} DataTransfer;
+
+typedef struct Disconnect {
+    uint8_t nickname[NICKNAME_LEN];
+} Disconnect;
+
 typedef union {
     Text text;
     PrivateText privateText;
@@ -49,6 +62,7 @@ typedef union {
     NicknameList nicknameList;
     Ack ack;
     Disconnect disconnect;
+    DataTransfer dataTransfer;
 } Data;
 
 typedef struct {

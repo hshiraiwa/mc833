@@ -20,10 +20,10 @@ void messageHandler(Message m) {
             return;
         case ACK:
             switch (m.body.data.ack.code) {
-                case GREETING:
+                case GREETING_ACK:
                     printf("Successfully connected to server\n");
                     return;
-                case DISCONNECT:
+                case NICKNAME_IN_USE_ACK:
                     printf("Nickname already in use, try a different one\n");
                     exit(0);
                 default:

@@ -1,4 +1,5 @@
 #include "commons.h"
+#include "interfaces.h"
 
 Message recvMessage(int sockfd) {
     MessageBody body;
@@ -88,6 +89,17 @@ MessageBody createDisconnectBody(char *nickname) {
     return body;
 }
 
+MessageBody createDataTransferBody(char *nickname, char *ip, unsigned short port) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = DATA_TRANSFER;
+    strcpy((char *) body.data.dataTransfer.ip, ip);
+    strcpy((char *) body.data.dataTransfer.nickname, nickname);
+    body.data.dataTransfer.port = port;
+
+    return body;
+}
+
 MessageBody createPrivateTextBody(char *message, char *recipient, char *nickname) {
     MessageBody body;
     bzero(&body, sizeof body);
@@ -122,7 +134,7 @@ MessageBody createGreetingBody(char *nickname) {
     return body;
 }
 
-MessageBody createAckMessage(DataType type) {
+MessageBody createAckMessage(AckType type) {
     MessageBody body;
     bzero(&body, sizeof body);
     body.type = ACK;

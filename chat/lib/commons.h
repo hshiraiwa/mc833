@@ -57,6 +57,9 @@ Client extractClient(Message m);
 
 MessageBody createDisconnectBody(char *nickname);
 
+
+MessageBody createDataTransferBody(char *nickname, char *ip, unsigned short port);
+
 /**
  * Create a message body for a private text message
  * @param message - message main text
@@ -83,10 +86,10 @@ MessageBody createGreetingBody(char *nickname);
 
 /**
  * Create a message body for a ack message
- * @param type - Message type for this ack
+ * @param type - The AckType
  * @return A built message body
  */
-MessageBody createAckMessage(DataType type);
+MessageBody createAckMessage(AckType type);
 
 /**
  * Create a message body for sending the nickname list

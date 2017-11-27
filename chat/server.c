@@ -30,7 +30,7 @@ int handleGreeting(Message m, Message **messages, ClientList *clientList) {
         int responseSize = ((clientSize * 2) + 1);
 
         *messages = malloc(sizeof(Message) * responseSize);
-        (*messages)[0] = message(client.ip, client.port, createAckMessage(GREETING));
+        (*messages)[0] = message(client.ip, client.port, createAckMessage(GREETING_ACK));
         for (int i = 0; i < clientSize; i++) {
             (*messages)[(i * 2) + 1] = message(clients[i].ip, clients[i].port, createNicknameListMessage(client));
             (*messages)[(i * 2) + 2] = message(client.ip, client.port, createNicknameListMessage(clients[i]));
@@ -41,7 +41,7 @@ int handleGreeting(Message m, Message **messages, ClientList *clientList) {
         return responseSize;
     } else {
         *messages = malloc(sizeof(Message));
-        **messages = message(client.ip, client.port, createAckMessage(DISCONNECT));
+        **messages = message(client.ip, client.port, createAckMessage(NICKNAME_IN_USE_ACK));
         return 1;
     }
 }
@@ -88,7 +88,7 @@ int handlePrivateMessage(Message m, Message **messages, ClientList *clientList) 
         **messages = message(ip, port, createPrivateTextBody((char *) m.body.data.privateText.body,
                                                              (char *) m.body.data.privateText.recipient,
                                                              nickname));
-
+        free(nickname);
         free(ip);
         return 1;
     }
@@ -111,6 +111,31 @@ int handleDisconnect(Message m, Message **messages, ClientList *clientList) {
     return size;
 }
 
+int handleDataTransfer(Message m, Message **messages, ClientList *clientList) {
+    char *nickname;
+    int nicknameLen = searchNickname(m.ip,
+                                     m.port,
+                                     clientList,
+                                     &nickname);
+    if (nicknameLen > 0) {
+        char *ip;
+        unsigned short port = searchAddress(&ip,
+                                            clientList,
+                                            (char *) m.body.data.dataTransfer.nickname);
+        if (ip == 0)
+            return 0;
+
+        *messages = malloc(sizeof(Message));
+        **messages = message(ip, port, createDataTransferBody(nickname,
+                                                              m.body.data.dataTransfer.ip,
+                                                              m.body.data.dataTransfer.port));
+        free(nickname);
+        free(ip);
+        return 1;
+    }
+    return 0;
+}
+
 int handler(Message m, Message **messages, ClientList *clientList) {
 
     switch (m.body.type) {
@@ -122,6 +147,8 @@ int handler(Message m, Message **messages, ClientList *clientList) {
             return handlePrivateMessage(m, messages, clientList);
         case DISCONNECT:
             return handleDisconnect(m, messages, clientList);
+        case DATA_TRANSFER:
+            return handleDataTransfer(m, messages, clientList);
         default:
             return 0;
     }

@@ -74,16 +74,17 @@ Client extractClient(Message m) {
     Client c;
     c.port = m.port;
     strcpy(c.ip, m.ip);
-    strcpy(c.nickname, (char *) m.body.data.greeting);
-
+    strcpy(c.nickname, (char *) m.body.data.greeting.nickname);
     return c;
 }
 
-MessageBody createMessageBody(char *message) {
+MessageBody createTextBody(char *message, char *nickname) {
     MessageBody body;
     bzero(&body, sizeof body);
-    body.type = MESSAGE;
-    strcpy((char *) body.data.message, message);
+    body.type = TEXT;
+    strcpy((char *) body.data.text.body, message);
+    if (nickname != 0)
+        strcpy((char *) body.data.text.nickname, nickname);
 
     return body;
 }
@@ -92,7 +93,7 @@ MessageBody createGreetingBody(char *nickname) {
     MessageBody body;
     bzero(&body, sizeof body);
     body.type = GREETING;
-    strcpy((char *) body.data.greeting, nickname);
+    strcpy((char *) body.data.greeting.nickname, nickname);
 
     return body;
 }
@@ -101,7 +102,7 @@ MessageBody createAckMessage(DataType type) {
     MessageBody body;
     bzero(&body, sizeof body);
     body.type = ACK;
-    body.data.ack = type;
+    body.data.ack.code = type;
 
     return body;
 }

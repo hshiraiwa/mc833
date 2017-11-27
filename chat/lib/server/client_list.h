@@ -2,6 +2,7 @@
 #define CLIENT_LIST_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include "semaphore.h"

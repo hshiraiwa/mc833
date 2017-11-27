@@ -7,15 +7,28 @@
 #define MESSAGE_LEN 300
 
 typedef enum {
-    MESSAGE = 0,
+    TEXT = 0,
     GREETING = 1,
     ACK = 2
 } DataType;
 
+typedef struct Text {
+    uint8_t body[MESSAGE_LEN];
+    uint8_t nickname[NICKNAME_LEN];
+} Text;
+
+typedef struct Greeting {
+    uint8_t nickname[NICKNAME_LEN];
+} Greeting;
+
+typedef struct Ack {
+    uint8_t code;
+} Ack;
+
 typedef union {
-    uint8_t message[MESSAGE_LEN];
-    uint8_t greeting[NICKNAME_LEN];
-    uint8_t ack;
+    Text text;
+    Greeting greeting;
+    Ack ack;
 } Data;
 
 typedef struct {

@@ -3,7 +3,6 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
-#include <zconf.h>
 #include "lib/commons.h"
 
 void resolveHostname(char *hostname, char **ip) {
@@ -44,14 +43,14 @@ int main(int argc, char *argv[]) {
     Message greetingMessage = message(ip, port, createGreetingBody(argv[3]));
     sendMessage(sockfd, greetingMessage);
     recvMessage(sockfd);
-    MessageBody body = createMessageBody("Hello World");
+    MessageBody body = createTextBody("Hello World", 0);
     for (int i = 0; i < 4; i++) {
         Message m = message(ip, port, body);
         sendMessage(sockfd, m);
         printf("message send: %s %d\n", m.ip, m.port);
 
         Message response = recvMessage(sockfd);
-        printf("%s\n", response.body.data.message);
+        printf("%s: %s\n", response.body.data.text.nickname, response.body.data.text.body);
     }
 
     return 0;

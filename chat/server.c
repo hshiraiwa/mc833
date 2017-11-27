@@ -8,7 +8,6 @@
 #define THREAD_COUNT 5
 
 int handleGreeting(Message m, Message **messages, ClientList *clientList) {
-    printf("%s %d: %s\n", m.ip, m.port, m.body.data.greeting);
     pushToList(extractClient(m), clientList);
     *messages = malloc(sizeof(Message));
     **messages = message(m.ip, m.port, createAckMessage(GREETING));
@@ -17,8 +16,6 @@ int handleGreeting(Message m, Message **messages, ClientList *clientList) {
 
 
 int handleMessage(Message m, Message **messages, ClientList *clientList) {
-    printf("%s %d: %s\n", m.ip, m.port, m.body.data.message);
-
     char *nickname;
     int nicknameLen = searchNickname(m.ip, m.port, clientList, &nickname);
     if (nicknameLen > 0) {
@@ -26,7 +23,10 @@ int handleMessage(Message m, Message **messages, ClientList *clientList) {
         int size = getClients(&clients, clientList);
         *messages = malloc(sizeof(Message) * size);
         for (int i = 0; i < size; i++) {
-            (*messages)[i] = message(clients[i].ip, clients[i].port, createMessageBody((char *) m.body.data.message));
+            (*messages)[i] = message(clients[i].ip,
+                                     clients[i].port,
+                                     createTextBody((char *) m.body.data.text.body,
+                                                    nickname));
         }
         free(clients);
         return size;
@@ -39,8 +39,10 @@ int handler(Message m, Message **messages, ClientList *clientList) {
     switch (m.body.type) {
         case GREETING:
             return handleGreeting(m, messages, clientList);
-        case MESSAGE:
+        case TEXT:
             return handleMessage(m, messages, clientList);
+        case ACK:
+            return 0;
     }
     return 0;
 }

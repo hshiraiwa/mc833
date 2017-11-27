@@ -48,7 +48,7 @@ void bindSocket(int sockfd, uint16_t port);
 
 Client extractClient(Message m);
 
-MessageBody createMessageBody(char *message);
+MessageBody createTextBody(char *message, char *nickname);
 
 MessageBody createGreetingBody(char *nickname);
 

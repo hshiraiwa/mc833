@@ -26,6 +26,8 @@ int searchNickname(char *ip, unsigned short port, ClientList *clientList, char *
 
 void pushToList(Client c, ClientList *clientList);
 
+int getClients(Client **clients, ClientList *clientList);
+
 void removeClient(Client c, ClientList *clientList);
 
 #endif //CLIENT_LIST_H

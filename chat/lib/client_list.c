@@ -18,6 +18,7 @@ int _searchNickname(char *ip, unsigned short port, ClientNode *clientNode, char 
         strcpy(*nickname, clientNode->c.nickname);
         return len;
     }
+    return _searchNickname(ip, port, clientNode->next, nickname);
 }
 
 int searchNickname(char *ip, unsigned short port, ClientList *clientList, char **nickname) {
@@ -36,6 +37,21 @@ void pushToList(Client c, ClientList *clientList) {
     clientNode->next = next;
     clientList->head = clientNode;
     sem_post(&clientList->mutex);
+    return;
+}
+
+int getClients(Client **clients, ClientList *clientList) {
+    int size = clientList->size;
+    sem_wait(&clientList->mutex);
+    *clients = malloc(sizeof(Client) * size);
+    ClientNode *aux = clientList->head;
+    int i = 0;
+    while (aux != 0 && i++) {
+        *clients[i] = aux->c;
+        aux = aux->next;
+    }
+    sem_post(&clientList->mutex);
+    return size;
 }
 
 void _removeClient(Client c, ClientNode **node) {

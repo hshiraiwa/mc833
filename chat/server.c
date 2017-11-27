@@ -4,29 +4,43 @@
 #include "lib/commons.h"
 #include "lib/message_queue.h"
 #include "lib/executors.h"
-#include "lib/interfaces.h"
 
 #define THREAD_COUNT 5
 
-int handler(Message m, Message **messages, ClientList *clientList) {
-    int nicknameLen;
+int handleGreeting(Message m, Message **messages, ClientList *clientList) {
+    printf("%s %d: %s\n", m.ip, m.port, m.body.data.greeting);
+    pushToList(extractClient(m), clientList);
+    *messages = malloc(sizeof(Message));
+    **messages = message(m.ip, m.port, createAckMessage(GREETING));
+    return 1;
+}
+
+
+int handleMessage(Message m, Message **messages, ClientList *clientList) {
+    printf("%s %d: %s\n", m.ip, m.port, m.body.data.message);
+
     char *nickname;
+    int nicknameLen = searchNickname(m.ip, m.port, clientList, &nickname);
+    if (nicknameLen > 0) {
+        Client *clients;
+        int size = getClients(&clients, clientList);
+        *messages = malloc(sizeof(Message) * size);
+        for (int i = 0; i < size; i++) {
+            (*messages)[i] = message(clients[i].ip, clients[i].port, createMessageBody((char *) m.body.data.message));
+        }
+        free(clients);
+        return size;
+    }
+    return 0;
+}
+
+int handler(Message m, Message **messages, ClientList *clientList) {
+
     switch (m.body.type) {
         case GREETING:
-            printf("%s %d: %s\n", m.ip, m.port, m.body.data.greeting);
-            pushToList(extractClient(m), clientList);
-            *messages = malloc(sizeof(Message));
-            **messages = message(m.ip, m.port, createAckMessage(GREETING));
-            return 1;
+            return handleGreeting(m, messages, clientList);
         case MESSAGE:
-            printf("%s %d: %s\n", m.ip, m.port, m.body.data.message);
-            nicknameLen = searchNickname(m.ip, m.port, clientList, &nickname);
-            if (nicknameLen > 0) {
-                *messages = malloc(sizeof(Message));
-                **messages = m;
-                return 1;
-            }
-            return 0;
+            return handleMessage(m, messages, clientList);
     }
     return 0;
 }

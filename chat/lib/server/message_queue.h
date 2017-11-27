@@ -2,7 +2,7 @@
 #define CHAT_MESSAGE_QUEUE_H
 
 #include "semaphore.h"
-#include "interfaces.h"
+#include "../interfaces.h"
 #include <stdlib.h>
 
 typedef struct MessageNode {

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lib/commons.h"
-#include "lib/message_queue.h"
-#include "lib/executors.h"
+#include "lib/server/message_queue.h"
+#include "lib/server/executors.h"
 
 #define THREAD_COUNT 5
 

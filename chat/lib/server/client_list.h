@@ -5,7 +5,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "semaphore.h"
-#include "interfaces.h"
+#include "../interfaces.h"
 
 
 typedef struct ClientNode {

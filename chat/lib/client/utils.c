@@ -1,9 +1,10 @@
 #include "utils.h"
 
-void resolveHostname(char *hostname, char **ip) {
+char * resolveHostname(char *hostname) {
     struct hostent *he;
     struct in_addr **addr_list;
     int i;
+    char* ip;
 
     if ((he = gethostbyname(hostname)) == NULL) {
         fprintf(stderr, "Error: could not resolve hostname\n");
@@ -13,9 +14,9 @@ void resolveHostname(char *hostname, char **ip) {
     addr_list = (struct in_addr **) he->h_addr_list;
 
     for (i = 0; addr_list[i] != NULL;) {
-        *ip = malloc(INET_ADDRSTRLEN);
-        strcpy(*ip, inet_ntoa(*addr_list[i]));
-        return;
+        ip = malloc(INET_ADDRSTRLEN);
+        strcpy(ip, inet_ntoa(*addr_list[i]));
+        return ip;
     }
 
     fprintf(stderr, "Error: could not resolve hostname\n");

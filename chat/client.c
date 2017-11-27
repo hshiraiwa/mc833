@@ -16,8 +16,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    char *ip;
-    resolveHostname(argv[1], &ip);
+    char *ip = resolveHostname(argv[1]);
     uint16_t port = (uint16_t) atoi(argv[2]);
     int sockfd = createSocket();
 

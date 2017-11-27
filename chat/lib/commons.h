@@ -46,12 +46,34 @@ int createSocket();
  */
 void bindSocket(int sockfd, uint16_t port);
 
+/**
+ * Extracts a new client from a GREETING message
+ * It does not check for wrong message type, may have weird results
+ * @param m - Message to be extracted
+ * @return Client extracted from the message
+ */
 Client extractClient(Message m);
 
+/**
+ * Create a message body for a text message
+ * @param message - message main text
+ * @param nickname - source's nickname (when sending to server may be filled with 0)
+ * @return A built message body
+ */
 MessageBody createTextBody(char *message, char *nickname);
 
+/**
+ * Create a message body for a greeting message
+ * @param nickname - nickname the user wants to register to itself
+ * @return A built message body
+ */
 MessageBody createGreetingBody(char *nickname);
 
+/**
+ * Create a message body for a ack message
+ * @param type - Message type for this ack
+ * @return A Build message body
+ */
 MessageBody createAckMessage(DataType type);
 
 #endif //CHAT_COMMONS_H

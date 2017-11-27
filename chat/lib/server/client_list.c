@@ -42,6 +42,10 @@ void pushToList(Client c, ClientList *clientList) {
 int getClients(Client **clients, ClientList *clientList) {
     sem_wait(&clientList->mutex);
     int size = clientList->size;
+    if(size == 0) {
+        *clients = 0;
+        return 0;
+    }
     *clients = malloc(sizeof(Client) * size);
     ClientNode *aux = clientList->head;
     int i = 0;

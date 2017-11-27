@@ -9,8 +9,21 @@
 #include "../interfaces.h"
 #include "../commons.h"
 
-void resolveHostname(char *hostname, char **ip);
+/**
+ * Given a hostname returns its ip address
+ * @param hostname - Hostname to be resolved
+ * @return Ip address pointer
+ */
+char * resolveHostname(char *hostname);
 
+/**
+ * Send a greeting message to the server
+ * Then awaits to for the server ACK
+ * @param sockfd - Socket file descriptor
+ * @param ip - Server IP
+ * @param port - Server Port
+ * @param nickname - Desired nickname
+ */
 void sendGreetings(int sockfd, char *ip, int port, char *nickname);
 
 #endif //UTILS_H

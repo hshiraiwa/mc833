@@ -26,6 +26,6 @@ char * resolveHostname(char *hostname) {
 void sendGreetings(int sockfd, char *ip, int port, char *nickname) {
     Message greetingMessage = message(ip, port, createGreetingBody(nickname));
     sendMessage(sockfd, greetingMessage);
-    printf("Connection stabilised\n");
+    printf("Greeting sent to server !\n");
 }
 

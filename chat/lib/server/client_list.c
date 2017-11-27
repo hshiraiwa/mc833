@@ -28,6 +28,24 @@ int searchNickname(char *ip, unsigned short port, ClientList *clientList, char *
     return result;
 }
 
+unsigned short _searchAddress(char **ip, ClientNode *clientNode, char *nickname) {
+    if (clientNode == 0)
+        return 0;
+    if (strcmp(nickname, clientNode->c.nickname) == 0) {
+        *ip = malloc(sizeof(char) * INET_ADDRSTRLEN);
+        strcpy(*ip, clientNode->c.ip);
+        return clientNode->c.port;
+    }
+    return _searchAddress(ip, clientNode->next, nickname);
+}
+
+unsigned short searchAddress(char **ip, ClientList *clientList, char *nickname) {
+    sem_wait(&clientList->mutex);
+    int result = _searchAddress(ip, clientList->head, nickname);
+    sem_post(&clientList->mutex);
+    return result;
+}
+
 void pushToList(Client c, ClientList *clientList) {
     sem_wait(&clientList->mutex);
     clientList->size = clientList->size + 1;
@@ -42,7 +60,7 @@ void pushToList(Client c, ClientList *clientList) {
 int getClients(Client **clients, ClientList *clientList) {
     sem_wait(&clientList->mutex);
     int size = clientList->size;
-    if(size == 0) {
+    if (size == 0) {
         *clients = 0;
         sem_post(&clientList->mutex);
         return 0;
@@ -64,12 +82,12 @@ void _removeClient(Client c, ClientNode **node) {
         return;
     if (strcmp((*node)->c.ip, c.ip) == 0 && (*node)->c.port == c.port) {
         (*node) = (*node)->next;
-        free(*node);
     }
 }
 
 void removeClient(Client c, ClientList *clientList) {
     sem_wait(&clientList->mutex);
     _removeClient(c, &clientList->head);
+    clientList->size--;
     sem_post(&clientList->mutex);
 }

@@ -1,5 +1,4 @@
 #include "commons.h"
-#include "interfaces.h"
 
 Message recvMessage(int sockfd) {
     MessageBody body;
@@ -75,8 +74,32 @@ Client extractClient(Message m) {
     Client c;
     c.port = m.port;
     strcpy(c.ip, m.ip);
-    strcpy(c.nickname, (char *) m.body.data.greeting.nickname);
+    if (m.body.type == GREETING)
+        strcpy(c.nickname, (char *) m.body.data.greeting.nickname);
     return c;
+}
+
+MessageBody createDisconnectBody(char *nickname) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = DISCONNECT;
+    strcpy((char *) body.data.disconnect.nickname, nickname);
+
+    return body;
+}
+
+MessageBody createPrivateTextBody(char *message, char *recipient, char *nickname) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = PRIVATE_TEXT;
+    strcpy((char *) body.data.privateText.body, message);
+    if (nickname != 0)
+        strcpy((char *) body.data.privateText.nickname, nickname);
+
+    if (recipient != 0)
+        strcpy((char *) body.data.privateText.recipient, recipient);
+
+    return body;
 }
 
 MessageBody createTextBody(char *message, char *nickname) {
@@ -112,7 +135,7 @@ MessageBody createNicknameListMessage(Client client) {
     MessageBody body;
     bzero(&body, sizeof body);
     body.type = NICKNAME_LIST;
-    strcpy((char*) body.data.nicknameList.nickname, client.nickname);
+    strcpy((char *) body.data.nicknameList.nickname, client.nickname);
 
     return body;
 }

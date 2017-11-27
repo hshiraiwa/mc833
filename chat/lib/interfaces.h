@@ -3,20 +3,32 @@
 
 #include <netinet/in.h>
 
-#define NICKNAME_LEN 300
+#define NICKNAME_LEN 30
 #define MESSAGE_LEN 300
 
 typedef enum {
     TEXT = 0,
-    GREETING = 1,
-    NICKNAME_LIST = 2,
-    ACK = 3
+    PRIVATE_TEXT = 1,
+    GREETING = 2,
+    NICKNAME_LIST = 3,
+    ACK = 4,
+    DISCONNECT = 5
 } DataType;
+
+typedef struct Disconnect {
+    uint8_t nickname[NICKNAME_LEN];
+} Disconnect;
 
 typedef struct Text {
     uint8_t body[MESSAGE_LEN];
     uint8_t nickname[NICKNAME_LEN];
 } Text;
+
+typedef struct PrivateText {
+    uint8_t body[MESSAGE_LEN];
+    uint8_t nickname[NICKNAME_LEN];
+    uint8_t recipient[NICKNAME_LEN];
+} PrivateText;
 
 typedef struct Greeting {
     uint8_t nickname[NICKNAME_LEN];
@@ -32,9 +44,11 @@ typedef struct Ack {
 
 typedef union {
     Text text;
+    PrivateText privateText;
     Greeting greeting;
     NicknameList nicknameList;
     Ack ack;
+    Disconnect disconnect;
 } Data;
 
 typedef struct {

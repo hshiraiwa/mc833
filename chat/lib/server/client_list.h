@@ -37,6 +37,15 @@ ClientList *initClientList();
 int searchNickname(char *ip, unsigned short port, ClientList *clientList, char **nickname);
 
 /**
+ * Search for the address from a specific user in client list
+ * @param ip - pointer to where the user ip will be stored
+ * @param clientList - Client list where is going to be queryed
+ * @param nickname - nickname to search for
+ * @return client's port
+ */
+unsigned short searchAddress(char **ip, ClientList *clientList, char *nickname);
+
+/**
  * Add a new client to the clientList
  * @param c - Client to be added
  * @param clientList - Client list where the client will be added

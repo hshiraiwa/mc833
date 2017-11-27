@@ -54,6 +54,18 @@ void bindSocket(int sockfd, uint16_t port);
  */
 Client extractClient(Message m);
 
+
+MessageBody createDisconnectBody(char *nickname);
+
+/**
+ * Create a message body for a private text message
+ * @param message - message main text
+ * @param recipient - recipient's nickname
+ * @param nickname - source's nickname (when sending to server may be filled with 0)
+ * @return A built message body
+ */
+MessageBody createPrivateTextBody(char *message, char *recipient, char *nickname);
+
 /**
  * Create a message body for a text message
  * @param message - message main text

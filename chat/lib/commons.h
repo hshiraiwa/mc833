@@ -54,10 +54,20 @@ void bindSocket(int sockfd, uint16_t port);
  */
 Client extractClient(Message m);
 
-
+/**
+ * Create a message body form a disconnect message
+ * @param nickname - Nickname of the user to be disconnected
+ * @return A build message body
+ */
 MessageBody createDisconnectBody(char *nickname);
 
-
+/**
+ * Create a Data Transfer request
+ * @param nickname - Nickname of the target or source
+ * @param ip - ip of the source tcp server
+ * @param port - port of the source tcp server
+ * @return
+ */
 MessageBody createDataTransferBody(char *nickname, char *ip, unsigned short port);
 
 /**

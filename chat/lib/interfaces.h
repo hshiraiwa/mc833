@@ -71,16 +71,16 @@ typedef struct {
 } MessageBody;
 
 typedef struct {
-    unsigned short port;
-    char ip[INET_ADDRSTRLEN];
+    uint16_t port;
+    uint8_t ip[INET_ADDRSTRLEN];
 
     MessageBody body;
 } Message;
 
 typedef struct {
-    unsigned short port;
-    char ip[INET_ADDRSTRLEN];
-    char nickname[NICKNAME_LEN];
+    uint16_t port;
+    uint8_t ip[INET_ADDRSTRLEN];
+    uint8_t nickname[NICKNAME_LEN];
 } Client;
 
 #endif //CHAT_INTERFACES_H_H

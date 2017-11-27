@@ -26,11 +26,6 @@ char * resolveHostname(char *hostname) {
 void sendGreetings(int sockfd, char *ip, int port, char *nickname) {
     Message greetingMessage = message(ip, port, createGreetingBody(nickname));
     sendMessage(sockfd, greetingMessage);
-    Message response;
-    printf("Waiting for server ACK...\n");
-    do {
-        response = recvMessage(sockfd);
-    } while(response.body.type != ACK && response.body.data.ack.code != GREETING);
     printf("Connection stabilised\n");
 }
 

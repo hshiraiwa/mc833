@@ -1,4 +1,5 @@
 #include "commons.h"
+#include "interfaces.h"
 
 Message recvMessage(int sockfd) {
     MessageBody body;
@@ -103,6 +104,15 @@ MessageBody createAckMessage(DataType type) {
     bzero(&body, sizeof body);
     body.type = ACK;
     body.data.ack.code = type;
+
+    return body;
+}
+
+MessageBody createNicknameListMessage(Client client) {
+    MessageBody body;
+    bzero(&body, sizeof body);
+    body.type = NICKNAME_LIST;
+    strcpy((char*) body.data.nicknameList.nickname, client.nickname);
 
     return body;
 }

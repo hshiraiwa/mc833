@@ -9,7 +9,8 @@
 typedef enum {
     TEXT = 0,
     GREETING = 1,
-    ACK = 2
+    NICKNAME_LIST = 2,
+    ACK = 3
 } DataType;
 
 typedef struct Text {
@@ -21,6 +22,10 @@ typedef struct Greeting {
     uint8_t nickname[NICKNAME_LEN];
 } Greeting;
 
+typedef struct NicknameList {
+    uint8_t nickname[NICKNAME_LEN];
+} NicknameList;
+
 typedef struct Ack {
     uint8_t code;
 } Ack;
@@ -28,6 +33,7 @@ typedef struct Ack {
 typedef union {
     Text text;
     Greeting greeting;
+    NicknameList nicknameList;
     Ack ack;
 } Data;
 

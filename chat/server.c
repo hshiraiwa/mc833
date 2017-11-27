@@ -5,13 +5,25 @@
 #include "lib/server/message_queue.h"
 #include "lib/server/executors.h"
 
-#define THREAD_COUNT 5
+#define THREAD_COUNT 1
 
 int handleGreeting(Message m, Message **messages, ClientList *clientList) {
-    pushToList(extractClient(m), clientList);
-    *messages = malloc(sizeof(Message));
-    **messages = message(m.ip, m.port, createAckMessage(GREETING));
-    return 1;
+    Client client = extractClient(m);
+
+    Client *clients;
+    int clientSize = getClients(&clients, clientList);
+    int responseSize = ((clientSize * 2) + 1);
+
+    *messages = malloc(sizeof(Message) * responseSize);
+    for (int i = 0; i < clientSize; i++) {
+        (*messages)[i * 2] = message(clients[i].ip, clients[i].port, createNicknameListMessage(client));
+        (*messages)[(i * 2) + 1] = message(client.ip, client.port, createNicknameListMessage(clients[i]));
+    }
+
+    (*messages)[responseSize - 1] = message(client.ip, client.port, createAckMessage(GREETING));
+
+    pushToList(client, clientList);
+    return responseSize;
 }
 
 
@@ -48,10 +60,9 @@ int handler(Message m, Message **messages, ClientList *clientList) {
             return handleGreeting(m, messages, clientList);
         case TEXT:
             return handleMessage(m, messages, clientList);
-        case ACK:
+        default:
             return 0;
     }
-    return 0;
 }
 
 int main(int argc, char *argv[]) {

@@ -44,6 +44,7 @@ int getClients(Client **clients, ClientList *clientList) {
     int size = clientList->size;
     if(size == 0) {
         *clients = 0;
+        sem_post(&clientList->mutex);
         return 0;
     }
     *clients = malloc(sizeof(Client) * size);

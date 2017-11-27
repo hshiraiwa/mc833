@@ -18,7 +18,6 @@ char * resolveHostname(char *hostname);
 
 /**
  * Send a greeting message to the server
- * Then awaits to for the server ACK
  * @param sockfd - Socket file descriptor
  * @param ip - Server IP
  * @param port - Server Port

@@ -72,8 +72,15 @@ MessageBody createGreetingBody(char *nickname);
 /**
  * Create a message body for a ack message
  * @param type - Message type for this ack
- * @return A Build message body
+ * @return A built message body
  */
 MessageBody createAckMessage(DataType type);
+
+/**
+ * Create a message body for sending the nickname list
+ * @param client - Client to be added as nickname list
+ * @return A built message body
+ */
+MessageBody createNicknameListMessage(Client client);
 
 #endif //CHAT_COMMONS_H

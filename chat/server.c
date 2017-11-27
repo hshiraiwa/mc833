@@ -21,19 +21,22 @@ int handleMessage(Message m, Message **messages, ClientList *clientList) {
     if (nicknameLen > 0) {
         Client *clients;
         int size = getClients(&clients, clientList);
-        int messagesCount = 0;
         *messages = malloc(sizeof(Message) * size);
         for (int i = 0; i < size; i++) {
             if (strcmp(nickname, clients[i].nickname) != 0) {
-                (*messages)[messagesCount] = message(clients[i].ip,
+                (*messages)[i] = message(clients[i].ip,
                                          clients[i].port,
                                          createTextBody((char *) m.body.data.text.body,
                                                         nickname));
-                messagesCount++;
+            } else {
+                (*messages)[i] = message(clients[i].ip,
+                                         clients[i].port,
+                                         createAckMessage(TEXT));
             }
         }
+        free(nickname);
         free(clients);
-        return messagesCount;
+        return size;
     }
     return 0;
 }

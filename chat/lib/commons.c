@@ -15,7 +15,7 @@ Message recvMessage(int sockfd) {
 
     Message message;
     message.body = body;
-    inet_ntop(AF_INET, &sin->sin_addr, message.ip, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &sin->sin_addr, (char*) message.ip, INET_ADDRSTRLEN);
     message.port = ntohs(sin->sin_port);
 
     return message;
@@ -27,7 +27,7 @@ void sendMessage(int sockfd, Message message) {
     bzero(&storage, sizeof storage);
 
     sin->sin_family = AF_INET;
-    if (inet_pton(AF_INET, message.ip, &sin->sin_addr) <= 0) {
+    if (inet_pton(AF_INET, (const char *) message.ip, &sin->sin_addr) <= 0) {
         perror("ERROR: message could not be sent");
         return;
     }
@@ -66,7 +66,7 @@ void bindSocket(int sockfd, uint16_t port) {
     servaddr.sin_port = htons(port);
 
     if (bind(sockfd, (struct sockaddr *) &servaddr, sizeof servaddr) < 0) {
-        perror("ERROR: Socket could not bind to port: " + port);
+        perror("ERROR: Socket could not bind to port");
         exit(1);
     }
 }
@@ -74,9 +74,9 @@ void bindSocket(int sockfd, uint16_t port) {
 Client extractClient(Message m) {
     Client c;
     c.port = m.port;
-    strcpy(c.ip, m.ip);
+    strcpy((char *)c.ip, (const char *)m.ip);
     if (m.body.type == GREETING)
-        strcpy(c.nickname, (char *) m.body.data.greeting.nickname);
+        strcpy((char *)c.nickname, (char *) m.body.data.greeting.nickname);
     return c;
 }
 
@@ -147,7 +147,7 @@ MessageBody createNicknameListMessage(Client client) {
     MessageBody body;
     bzero(&body, sizeof body);
     body.type = NICKNAME_LIST;
-    strcpy((char *) body.data.nicknameList.nickname, client.nickname);
+    strcpy((char *) body.data.nicknameList.nickname, (const char *)client.nickname);
 
     return body;
 }

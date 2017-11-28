@@ -1,10 +1,17 @@
 #include "file_transfer.h"
+#include <sys/socket.h>
+#include <sys/poll.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <zconf.h>
 
 void writePoll(int sockfd, char* input){
     struct pollfd pfd[1];
     pfd->fd = sockfd;
     pfd->events = POLLOUT;
-    int rv = poll(pfd, 1, TIMEOUT);
+    int rv = poll(pfd, 1, 100);
 
     if(pfd[0].revents & POLLOUT) {
         write(sockfd, input, strlen(input));
@@ -19,7 +26,7 @@ void sendFile(int sockfd, char* fileName){
 	char filename[64];
 
 	FILE *fileToSend;
-	sprintf(filename, "%c.txt", fileName)
+	sprintf(filename, "%s.txt", fileName);
 	fileToSend = fopen(filename, "r");
 
 	while(getline(&lineToSend, &length, fileToSend) == -1){

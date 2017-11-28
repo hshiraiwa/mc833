@@ -3,3 +3,4 @@
 
 #endif //FILE_TRANSFER_H
 
+void writePoll(int sockfd, char* input);
